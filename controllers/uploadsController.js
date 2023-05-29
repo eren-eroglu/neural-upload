@@ -1,8 +1,24 @@
 const path = require("path");
 const { StatusCodes } = require("http-status-codes");
+const CustomError = require("../errors");
 
 const uploadProductImage = async (req, res) => {
+  if (!req.files) {
+    throw new CustomError.BadRequestError("No file Uploaded");
+  }
   let productImage = req.files.image;
+
+  if (!productImage.mimetype.startsWith("image")) {
+    throw new CustomError.BadRequestError("Please Upload Image");
+  }
+
+  const maxSize = 1024 * 1024;
+  if (productImage.size > maxSize) {
+    throw new CustomError.BadRequestError(
+      "Please Upload Image smaller than 1mb"
+    );
+  }
+
   const imagePath = path.join(
     __dirname,
     "../public/uploads/",
